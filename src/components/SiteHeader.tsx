@@ -1,7 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { type CSSProperties, useEffect, useState } from "react";
+import logo from "@/assets/rk-logo.webp";
 import { Arrow } from "@/components/icons";
 import { profile } from "@/content/site";
 
@@ -48,12 +50,13 @@ export function SiteHeader() {
           onClick={() => setOpen(false)}
           className="logo header-in group flex items-center gap-3 text-[1.0625rem] font-semibold tracking-tight"
         >
-          <span
-            aria-hidden
-            className="logo-mark grid size-8 place-items-center rounded-full bg-ink text-[0.75rem] font-semibold text-paper"
-          >
-            RK
-          </span>
+          <Image
+            src={logo}
+            alt=""
+            loading="eager"
+            sizes="72px"
+            className="logo-mark h-8 w-auto sm:h-9"
+          />
           {profile.shortName}
         </Link>
 

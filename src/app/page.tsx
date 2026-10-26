@@ -17,7 +17,7 @@ export default function Home() {
     <>
       <Hero />
 
-      <section aria-label="Tools" className="border-y border-line bg-surface">
+      <section aria-label="Tools" className="bg-surface">
         <ToolMarquee />
       </section>
 
@@ -29,7 +29,7 @@ export default function Home() {
           id="work-title"
           title={
             <>
-              Five products, from <span className="font-serif font-normal italic">lottery counters</span> to AI voice.
+              Websites designed with <span className="font-serif font-normal italic">purpose</span>
             </>
           }
         />
@@ -191,10 +191,10 @@ export default function Home() {
           </h2>
           <div data-reveal style={delay(120)} className="mt-14 flex flex-col gap-10 sm:mt-20 lg:flex-row lg:items-end lg:justify-between">
             <a
-              href={`mailto:${profile.email}`}
+              href={`mailto:${profile.contactEmail}`}
               className="group inline-flex max-w-full items-center gap-4 text-[clamp(1.35rem,0.9rem+2.6vw,3rem)] font-medium tracking-tight break-all"
             >
-              <span className="link-line">{profile.email}</span>
+              <span className="link-line">Email Me</span>
               <span className="grid size-11 shrink-0 place-items-center rounded-full bg-accent-bright text-white transition-transform duration-500 ease-out-expo group-hover:rotate-45 sm:size-14">
                 <Arrow className="size-4 sm:size-5" />
               </span>

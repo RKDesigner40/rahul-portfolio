@@ -398,14 +398,23 @@
 }
 
 .logo-mark {
-  transition:
-    transform 0.35s var(--ease-out-quint),
-    background-color 0.3s ease-out;
+  transition: transform 0.35s var(--ease-out-quint);
 }
 .logo:hover .logo-mark,
 .logo:focus-visible .logo-mark {
   transform: scale(1.06);
-  background-color: color-mix(in oklab, var(--color-ink) 86%, var(--color-paper));
+}
+
+/* Floating WhatsApp button — clear of iOS home indicator / notches. */
+.whatsapp-fab {
+  right: max(1.25rem, env(safe-area-inset-right));
+  bottom: max(1.25rem, env(safe-area-inset-bottom));
+}
+@media (min-width: 640px) {
+  .whatsapp-fab {
+    right: max(2rem, env(safe-area-inset-right));
+    bottom: max(2rem, env(safe-area-inset-bottom));
+  }
 }
 
 /* Figma-canvas dot grid for design showcases. */

@@ -8,7 +8,7 @@ export const profile = {
   tagline: "Designing digital experiences people love.",
   // Hero description, as supplied by Rahul.
   intro:
-    "I’m Rahul Kulathoor, a UI/UX Designer with 10+ years of experience crafting intuitive, high-performing digital experiences.",
+    "I’m Rahul Kulathoor, a UI/UX Designer crafting intuitive digital experiences through thoughtful design and interaction.",
   about: [
     "I'm a UI/UX designer with over ten years of experience helping businesses turn complex ideas into intuitive, usable and modern interfaces.",
     "My background spans wireframes, prototypes, visual design and front-end implementation, which means I design with how things get built in mind.",
@@ -17,6 +17,12 @@ export const profile = {
   location: "India — working globally",
   yearsExperience: "10+",
   email: "rkdesignux@gmail.com",
+  // Destination of the "Email Me" link in the contact section (never shown as text).
+  contactEmail: "rahulk4060@gmail.com",
+  // WhatsApp number for the floating chat button: country code + number, digits only
+  // (no "+", spaces or dashes), e.g. "919876543210". Used only in the wa.me link, never shown as text.
+  // ⚠ PLACEHOLDER — replace with your real number.
+  whatsappNumber: "91XXXXXXXXXX",
   links: {
     linkedin: "https://www.linkedin.com/in/rahul-kulathoor",
     behance: "https://www.behance.net/rahulkulathoor",
@@ -107,9 +113,9 @@ export const tools = [
   { name: "ChatGPT", logo: "/logos/chatgpt.svg" },
   { name: "Google Antigravity", logo: "/logos/antigravity-mark.svg" },
   { name: "Claude", logo: "/logos/claude.svg" },
-  { name: "Adobe Firefly", logo: "/logos/firefly.svg" },
+  { name: "Adobe Firefly", logo: "/logos/firefly-mono.svg" },
   { name: "Figma", logo: "/logos/figma.svg" },
-  { name: "Photoshop", logo: "/logos/photoshop.svg" },
+  { name: "Photoshop", logo: "/logos/photoshop-mono.svg" },
   { name: "Illustrator", logo: "/logos/illustrator.svg" },
   { name: "VS Code", logo: "/logos/vscode.svg" },
 ] as const;

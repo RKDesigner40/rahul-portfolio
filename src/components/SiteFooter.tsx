@@ -4,7 +4,8 @@ import { profile } from "@/content/site";
 export function SiteFooter() {
   return (
     <footer className="border-t border-line">
-      <div className="container-x flex flex-col gap-6 py-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
+      {/* Extra bottom (mobile) / right (sm+) padding keeps links clear of the floating WhatsApp button. */}
+      <div className="container-x flex flex-col gap-6 pt-8 pb-28 text-sm text-muted sm:flex-row sm:items-center sm:justify-between sm:pb-8 sm:pr-28">
         <p>
           © 2026 {profile.name} · {profile.role}
         </p>

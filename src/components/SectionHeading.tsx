@@ -8,7 +8,7 @@ type Props = {
 
 export function SectionHeading({ index, label, title, aside, id }: Props) {
   return (
-    <div className="grid gap-6 border-t border-line pt-6 lg:grid-cols-12 lg:pt-8">
+    <div className="grid gap-6 lg:grid-cols-12">
       <p className="eyebrow flex gap-3 lg:col-span-3">
         <span className="tabular-nums text-ink">{index}</span>
         {label}

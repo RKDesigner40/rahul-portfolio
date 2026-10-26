@@ -113,12 +113,6 @@ function SelectionFrame({ children }: { children: React.ReactNode }) {
         ].map((pos) => (
           <span key={pos} className={`hero-handle absolute size-[9px] border-[1.5px] border-accent-bright bg-paper ${pos}`} />
         ))}
-        <span className="hero-handle absolute top-0 left-full ml-3 rounded-[3px] bg-accent-bright px-1.5 py-0.5 font-sans text-[0.68rem] font-medium not-italic tracking-normal text-white sm:ml-4 sm:text-xs">
-          Outcome
-        </span>
-        <span className="hero-handle absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-[3px] bg-accent-bright px-1.5 py-0.5 font-sans text-[0.68rem] font-medium not-italic tracking-normal text-white sm:-bottom-9 sm:text-xs">
-          Fill × Hug
-        </span>
       </span>
       <span aria-hidden className="hero-cursor pointer-events-none absolute bottom-[-1.75rem] left-full ml-1 hidden items-start gap-1 font-sans not-italic sm:flex">
         <svg width="18" height="20" viewBox="0 0 18 20" fill="none">
