@@ -1,0 +1,490 @@
+@import "tailwindcss";
+
+/* ─── Design tokens ─────────────────────────────────────────────
+   Mirrors design/tokens.json — keep both in sync. */
+@theme {
+  /* Dark theme site-wide. "paper" = page ground, "ink" = text. */
+  --color-paper: #131312;
+  --color-surface: #1b1b19;
+  --color-surface-2: #252522;
+  --color-line: #2c2c29;
+  --color-line-strong: #43423d;
+  --color-ink: #f3f2ec;
+  --color-ink-soft: #bdbcb4;
+  --color-muted: #8f8e87;
+  --color-accent: #f0784c;
+  --color-accent-bright: #f0784c;
+  --color-accent-soft: #3a2219;
+
+  --font-sans: var(--font-inter-tight), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --text-display: clamp(2.75rem, 1.2rem + 6.4vw, 7.25rem);
+  --text-display--line-height: 0.98;
+  --text-display--letter-spacing: -0.045em;
+  /* Hero headline: capped by viewport height too, so 3 lines fit on 768px-tall screens. */
+  --text-hero: clamp(2.75rem, min(6.4vw, 11.5vh), 6rem);
+  --text-hero--line-height: 0.98;
+  --text-hero--letter-spacing: -0.045em;
+  --text-headline: clamp(2rem, 1.2rem + 3.2vw, 4rem);
+  --text-headline--line-height: 1.02;
+  --text-headline--letter-spacing: -0.035em;
+  --text-title: clamp(1.5rem, 1.15rem + 1.2vw, 2.25rem);
+  --text-title--line-height: 1.1;
+  --text-title--letter-spacing: -0.025em;
+  --text-lead: clamp(1.125rem, 1.02rem + 0.45vw, 1.375rem);
+  --text-lead--line-height: 1.5;
+  --text-lead--letter-spacing: -0.01em;
+  --text-label: 0.8125rem;
+  --text-label--line-height: 1.2;
+  --text-label--letter-spacing: 0.08em;
+  /* Readability: Tailwind's small sizes bumped site-wide (14→15px, 12→13px). */
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.5;
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.45;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+  }
+  body {
+    background: var(--color-paper);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+  }
+  ::selection {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  .container-x {
+    width: 100%;
+    max-width: 88rem;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 640px) {
+    .container-x {
+      padding-inline: 2rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .container-x {
+      padding-inline: 3rem;
+    }
+  }
+
+  .eyebrow {
+    font-size: var(--text-label);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--color-muted);
+  }
+
+  /* Underline that grows from the left on hover */
+  .link-line {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.5s var(--ease-out-expo);
+  }
+  .link-line:hover,
+  .link-line:focus-visible {
+    background-size: 100% 1px;
+  }
+}
+
+/* ─── Scroll reveal ─────────────────────────────────────────────
+   Hidden only once RevealObserver has mounted, so content stays
+   visible without JavaScript. */
+.reveal-ready [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+  transition:
+    opacity 0.9s var(--ease-out-expo),
+    transform 0.9s var(--ease-out-expo);
+  transition-delay: calc(var(--reveal-delay, 0) * 1ms);
+}
+.reveal-ready [data-reveal][data-shown] {
+  opacity: 1;
+  transform: none;
+}
+
+/* ─── Hero ──────────────────────────────────────────────────────── */
+@keyframes rise {
+  from {
+    transform: translate3d(0, 105%, 0);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* Negative insets leave room for the handles and labels outside the box. */
+@keyframes frame-in {
+  from {
+    clip-path: inset(-3rem 100% -3rem -1rem);
+  }
+  to {
+    clip-path: inset(-3rem -9rem -3rem -1rem);
+  }
+}
+@keyframes pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes cursor-path {
+  0% {
+    opacity: 0;
+    transform: translate3d(120px, 90px, 0);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes pulse-dot {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(34 160 90 / 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgb(34 160 90 / 0);
+  }
+}
+
+.hero-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+.hero-line > span {
+  display: inline-block;
+  animation: rise 1.1s var(--ease-out-expo) both;
+  animation-delay: calc(var(--d, 0) * 1ms);
+}
+.hero-fade {
+  animation: fade-up 1s var(--ease-out-expo) both;
+  animation-delay: calc(var(--d, 0) * 1ms);
+}
+.hero-frame {
+  animation: frame-in 0.9s var(--ease-in-out-quart) both;
+  animation-delay: 900ms;
+}
+.hero-handle {
+  animation: pop 0.4s var(--ease-out-expo) both;
+  animation-delay: 1500ms;
+}
+.hero-cursor {
+  animation: cursor-path 1.4s var(--ease-out-expo) both;
+  animation-delay: 1300ms;
+}
+/* ─── Hero portrait + backdrop ─────────────────────────────────────
+   All static once loaded; entrances run once (reduced motion → instant). */
+
+/* Sized as a share of the container's content width (min(100vw, 88rem) minus
+   its side padding), so it stays inside the container and clear of .hero-text.
+   Also capped by the hero's height so the head never slides under the header
+   on wide-but-short screens (image ratio ≈ 1 : 1.105). */
+@media (min-width: 768px) {
+  .hero-portrait {
+    width: min(calc((min(100vw, 88rem) - 4rem) * 0.45), calc((min(100svh, 60rem) - 8rem) / 1.105));
+  }
+}
+@media (min-width: 1024px) {
+  .hero-portrait {
+    width: min(calc((min(100vw, 88rem) - 6rem) * 0.42), calc((min(100svh, 60rem) - 8rem) / 1.105));
+  }
+}
+
+/* Figma-canvas dot grid, strongest behind the portrait and fading out. */
+.hero-grid {
+  background-image: radial-gradient(rgb(255 255 255 / 0.11) 1px, transparent 1.4px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 60% 70% at 72% 48%, #000 15%, transparent 72%);
+  animation: fade-in 1.6s ease-out both;
+}
+@media (max-width: 767px) {
+  .hero-grid {
+    mask-image: radial-gradient(ellipse 90% 45% at 50% 80%, #000 10%, transparent 75%);
+  }
+}
+
+/* Film grain — inline SVG turbulence, ~1KB, no request. */
+.hero-grain {
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.hero-glow {
+  background:
+    radial-gradient(closest-side, rgb(240 120 76 / 0.42), rgb(240 120 76 / 0.14) 52%, transparent 74%),
+    radial-gradient(closest-side at 62% 30%, rgb(255 236 220 / 0.1), transparent 60%);
+  filter: blur(24px);
+  animation: glow-in 1.8s var(--ease-out-expo) both;
+  animation-delay: 250ms;
+}
+.hero-rings {
+  animation: glow-in 1.6s var(--ease-out-expo) both;
+  animation-delay: 550ms;
+}
+.hero-person {
+  animation: person-in 1.2s var(--ease-out-expo) both;
+  animation-delay: 200ms;
+  /* soft lift off the ground + keep the hard bottom crop invisible */
+  filter: drop-shadow(0 30px 60px rgb(0 0 0 / 0.45));
+  mask-image: linear-gradient(to bottom, #000 66%, transparent 93%);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes glow-in {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes person-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Text column as a share of the same container content width as
+   .hero-portrait (50% beside 45% / 55% beside 42%), leaving a clear gutter. */
+@media (min-width: 768px) {
+  .hero-text {
+    max-width: calc((min(100vw, 88rem) - 4rem) * 0.5);
+  }
+}
+@media (min-width: 1024px) {
+  .hero-text {
+    max-width: calc((min(100vw, 88rem) - 6rem) * 0.55);
+  }
+}
+.status-dot {
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}
+
+/* ─── Marquee ───────────────────────────────────────────────────── */
+@keyframes marquee {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+.marquee-track {
+  animation: marquee 38s linear infinite;
+}
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track {
+  animation-play-state: paused;
+}
+
+/* ─── Header ────────────────────────────────────────────────────────
+   Entrance uses fill-mode `backwards` (not `both`) so it releases
+   `transform` when done — otherwise hover lifts would be overridden.
+   Only opacity/transform animate, so there's no layout shift. */
+@keyframes header-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.header-in {
+  animation: header-in 0.5s var(--ease-out-quint) backwards;
+  animation-delay: calc(var(--d, 0) * 1ms);
+}
+
+.nav-link {
+  position: relative;
+  color: var(--color-ink-soft);
+  transition: color 0.25s ease-out;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -5px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.35s var(--ease-out-quint);
+}
+.nav-link:hover,
+.nav-link:focus-visible {
+  color: var(--color-ink);
+}
+/* grows in from the left, retracts to the right */
+.nav-link:hover::after,
+.nav-link:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.header-cta {
+  transition:
+    background-color 0.3s ease-out,
+    box-shadow 0.3s ease-out,
+    transform 0.3s var(--ease-out-quint);
+}
+.header-cta:hover {
+  background-color: var(--color-accent);
+  box-shadow: 0 6px 16px -8px rgb(181 64 27 / 0.55);
+  transform: translate3d(0, -1px, 0);
+}
+.header-cta:active {
+  transform: none;
+  transition-duration: 0.1s;
+}
+
+.logo-mark {
+  transition:
+    transform 0.35s var(--ease-out-quint),
+    background-color 0.3s ease-out;
+}
+.logo:hover .logo-mark,
+.logo:focus-visible .logo-mark {
+  transform: scale(1.06);
+  background-color: color-mix(in oklab, var(--color-ink) 86%, var(--color-paper));
+}
+
+/* Figma-canvas dot grid for design showcases. */
+.canvas-dots {
+  background-image: radial-gradient(rgb(255 255 255 / 0.06) 1px, transparent 1.3px);
+  background-size: 20px 20px;
+}
+
+/* ─── Contact glow ──────────────────────────────────────────────────
+   A very soft warm-white light behind the heading. Many gentle stops give
+   a long falloff with no visible edge or banding; no filter, no animation.
+   `isolation` keeps the z-index:-1 layer above the page ground but below
+   the content. inset:0 + overflow:hidden → no overflow or layout shift. */
+.contact-glow {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.contact-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 70% 65% at 50% 42%,
+    rgb(255 246 234 / 0.075) 0%,
+    rgb(255 246 234 / 0.06) 14%,
+    rgb(255 246 234 / 0.042) 28%,
+    rgb(255 246 234 / 0.026) 42%,
+    rgb(255 246 234 / 0.013) 58%,
+    rgb(255 246 234 / 0.005) 74%,
+    rgb(255 246 234 / 0) 90%
+  );
+}
+@media (max-width: 767px) {
+  .contact-glow::before {
+    background-image: radial-gradient(
+      ellipse 95% 55% at 50% 38%,
+      rgb(255 246 234 / 0.07) 0%,
+      rgb(255 246 234 / 0.045) 25%,
+      rgb(255 246 234 / 0.02) 50%,
+      rgb(255 246 234 / 0.006) 72%,
+      rgb(255 246 234 / 0) 90%
+    );
+  }
+}
+
+/* ─── Page enter ────────────────────────────────────────────────── */
+.page-enter {
+  animation: fade-up 0.8s var(--ease-out-expo) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0ms !important;
+  }
+  .reveal-ready [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+  .marquee-track {
+    animation: none;
+    transform: none;
+    width: auto;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 1.5rem;
+  }
+  .marquee-dup {
+    display: none;
+  }
+}
