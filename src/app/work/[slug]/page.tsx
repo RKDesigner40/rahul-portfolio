@@ -4,6 +4,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { CSSProperties } from "react";
 import { FigmaShowcase } from "@/components/FigmaShowcase";
+import { FrameGallery } from "@/components/FrameGallery";
+import { JsonLd, PERSON_ID, WEBSITE_ID } from "@/components/JsonLd";
+import { absoluteUrl, seo } from "@/content/seo";
 import { Arrow } from "@/components/icons";
 import { Placeholder } from "@/components/Placeholder";
 import { ProjectPreview } from "@/components/ProjectPreview";
@@ -13,6 +16,7 @@ import {
   getNextProject,
   getProject,
   projects,
+  type DesignCaseStudy,
   type ProductCaseStudy,
   type Project,
   type WebsiteCaseStudy,
@@ -26,10 +30,61 @@ export async function generateMetadata({ params }: PageProps<"/work/[slug]">): P
   const { slug } = await params;
   const project = getProject(slug);
   if (!project) return {};
+  const path = `/work/${project.slug}`;
+  const image = { url: `/og/${project.slug}.jpg`, width: 1200, height: 630, alt: `${project.name} — ${coverShot(project).alt}` };
+  // Nested objects (openGraph, twitter) replace the layout's rather than merge, so set them in full.
   return {
-    title: `${project.name} case study`,
-    description: project.summary,
-    openGraph: { images: [{ url: coverShot(project).src, width: 2000, height: 1250 }] },
+    title: project.seo.title,
+    description: project.seo.description,
+    alternates: { canonical: path },
+    openGraph: {
+      type: "article",
+      url: path,
+      siteName: seo.siteName,
+      locale: seo.locale,
+      title: project.seo.title,
+      description: project.seo.description,
+      images: [image],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: project.seo.title,
+      description: project.seo.description,
+      images: [image.url],
+    },
+  };
+}
+
+/** BreadcrumbList + CreativeWork for a case study, credited to the site's Person. */
+function caseStudyJsonLd(project: Project) {
+  const url = absoluteUrl(`/work/${project.slug}`);
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
+          { "@type": "ListItem", position: 2, name: "Work", item: absoluteUrl("/#work") },
+          { "@type": "ListItem", position: 3, name: project.name, item: url },
+        ],
+      },
+      {
+        "@type": "CreativeWork",
+        "@id": `${url}#case-study`,
+        name: `${project.name} case study`,
+        headline: project.seo.title,
+        description: project.seo.description,
+        url,
+        image: absoluteUrl(`/og/${project.slug}.jpg`),
+        genre: project.category,
+        inLanguage: "en-IN",
+        creator: { "@id": PERSON_ID },
+        isPartOf: { "@id": WEBSITE_ID },
+        mainEntityOfPage: url,
+        sameAs: project.url,
+      },
+    ],
   };
 }
 
@@ -41,9 +96,11 @@ export default async function CaseStudy({ params }: PageProps<"/work/[slug]">) {
   const index = projects.findIndex((p) => p.slug === slug) + 1;
   const next = getNextProject(slug);
   const isWebsite = project.kind === "website";
+  const isDesign = project.kind === "design";
 
   return (
     <article className="page-enter">
+      <JsonLd data={caseStudyJsonLd(project)} />
       {/* ─── Intro ─── */}
       <header className="container-x pt-28 sm:pt-40">
         <Link href="/#work" className="group inline-flex items-center gap-2 text-sm text-ink-soft hover:text-ink">
@@ -79,7 +136,7 @@ export default async function CaseStudy({ params }: PageProps<"/work/[slug]">) {
           <Meta label="My role">
             {project.role ?? <span className="text-accent">To be confirmed</span>}
           </Meta>
-          {isWebsite ? (
+          {project.kind === "website" || project.kind === "design" ? (
             <Meta label="Project type">{project.projectType}</Meta>
           ) : (
             <Meta label="Platform">{project.platform}</Meta>
@@ -99,13 +156,23 @@ export default async function CaseStudy({ params }: PageProps<"/work/[slug]">) {
       </div>
 
       {/* ─── Body ─── */}
-      {project.kind === "website" ? <WebsiteBody project={project} /> : <ProductBody project={project} />}
+      {project.kind === "website" ? (
+        <WebsiteBody project={project} />
+      ) : project.kind === "design" ? (
+        <DesignBody project={project} />
+      ) : (
+        <ProductBody project={project} />
+      )}
 
-      {/* ─── Final UI ─── */}
+      {/* ─── Final UI ─── (design case studies show their screens inside DesignBody) */}
+      {!isDesign && (
       <section aria-labelledby="final-ui" className="container-x mt-24 sm:mt-36">
         <div className="grid gap-6 border-t border-line pt-6 lg:grid-cols-12">
           <p className="eyebrow flex gap-3 lg:col-span-3">
-            <span className="tabular-nums text-ink">{project.kind === "website" && project.techStack ? "06" : "05"}</span>Final UI
+            <span className="tabular-nums text-ink">
+              {String(5 + (project.kind === "website" && project.techStack ? 1 : 0) + (project.palette ? 1 : 0)).padStart(2, "0")}
+            </span>
+            Final UI
           </p>
           <h2 id="final-ui" className="text-headline font-medium lg:col-span-9">
             Screens from the <span className="font-serif font-normal italic">{isWebsite ? "live website" : "live product"}</span>
@@ -115,8 +182,9 @@ export default async function CaseStudy({ params }: PageProps<"/work/[slug]">) {
           <ScreenshotSlider shots={project.shots} label={`${project.name} screens`} tint={project.tint} />
         </div>
       </section>
+      )}
 
-      {project.kind !== "website" && (
+      {(project.kind === undefined || project.kind === "product") && (
         <div className="container-x mt-24 sm:mt-36">
           <CaseSection label="Key learnings" n="06">
             {project.learnings ? (
@@ -141,6 +209,8 @@ export default async function CaseStudy({ params }: PageProps<"/work/[slug]">) {
 
 /** Marketing-website case study: overview, role, Figma design, website experience. */
 function WebsiteBody({ project }: { project: WebsiteCaseStudy }) {
+  // Sections after "Visual direction" shift by one when the project has a palette.
+  const num = (base: number) => String(base + (project.palette ? 1 : 0)).padStart(2, "0");
   return (
     <div className="mt-24 space-y-24 sm:mt-36 sm:space-y-36">
       <div className="container-x space-y-24 sm:space-y-36">
@@ -171,13 +241,20 @@ function WebsiteBody({ project }: { project: WebsiteCaseStudy }) {
             ))}
           </dl>
         </CaseSection>
+
+        {project.palette && (
+          <CaseSection label="Visual direction" n="03">
+            <h3 className="text-title font-medium">Colour palette</h3>
+            <PaletteSwatches colors={project.palette} projectName={project.name} />
+          </CaseSection>
+        )}
       </div>
 
       {/* Wide section so real Figma frames get room; frames appear once exported into figma.framesDir. */}
       <section aria-labelledby="figma-design" className="container-x">
         <div className="grid gap-6 border-t border-line pt-6 lg:grid-cols-12">
           <p className="eyebrow flex gap-3 lg:col-span-3">
-            <span className="tabular-nums text-ink">03</span>Figma design
+            <span className="tabular-nums text-ink">{num(3)}</span>Figma design
           </p>
           <div data-reveal className="lg:col-span-9">
             <h2 id="figma-design" className="text-headline font-medium">
@@ -193,7 +270,7 @@ function WebsiteBody({ project }: { project: WebsiteCaseStudy }) {
       </section>
 
       <div className="container-x space-y-24 sm:space-y-36">
-        <CaseSection label={project.experience.label ?? "Website experience"} n="04">
+        <CaseSection label={project.experience.label ?? "Website experience"} n={num(4)}>
           <h3 className="text-title font-medium">{project.experience.title}</h3>
           {project.experience.description && (
             <p className="mt-5 text-lead text-ink-soft">{project.experience.description}</p>
@@ -214,7 +291,7 @@ function WebsiteBody({ project }: { project: WebsiteCaseStudy }) {
         </CaseSection>
 
         {project.techStack && (
-          <CaseSection label="Tech stack" n="05">
+          <CaseSection label="Tech stack" n={num(5)}>
             <h3 className="text-title font-medium">Technology Stack</h3>
             <ul className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-3">
               {project.techStack.map((t, i) => (
@@ -228,6 +305,165 @@ function WebsiteBody({ project }: { project: WebsiteCaseStudy }) {
         )}
       </div>
     </div>
+  );
+}
+
+/**
+ * Design-only case study (landing page + dashboard, designed in Figma):
+ * overview, role, visual direction, landing page, dashboard, interactions, outcome.
+ */
+function DesignBody({ project }: { project: DesignCaseStudy }) {
+  const { visual, landing, dashboard, interactions, outcome } = project;
+  return (
+    <div className="mt-24 space-y-24 sm:mt-36 sm:space-y-36">
+      <div className="container-x space-y-24 sm:space-y-36">
+        <CaseSection label="Overview" n="01">
+          <p className="text-lead text-ink-soft">{project.description}</p>
+          <a
+            href={project.url}
+            target="_blank"
+            rel="noreferrer"
+            className="group mt-8 inline-flex items-center gap-2 text-[0.9375rem] font-medium text-ink"
+          >
+            <span className="link-line">Visit Live Website</span>
+            <Arrow className="text-accent transition-transform duration-500 ease-out-expo group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </a>
+        </CaseSection>
+
+        <CaseSection label="My role" n="02">
+          <p className="text-title font-medium">{project.role}</p>
+          <dl className="mt-10 divide-y divide-line border-y border-line">
+            {project.roleDetails.map((r, i) => (
+              <div key={r.title} data-reveal style={revealDelay((i % 3) * 70)} className="grid gap-2 py-6 sm:grid-cols-12 sm:gap-6">
+                <dt className="flex items-baseline gap-3 font-medium sm:col-span-5">
+                  <span className="font-serif text-lg font-normal text-accent italic">{String(i + 1).padStart(2, "0")}</span>
+                  {r.title}
+                </dt>
+                <dd className="text-ink-soft sm:col-span-7">{r.text}</dd>
+              </div>
+            ))}
+          </dl>
+        </CaseSection>
+
+        <CaseSection label="Visual direction" n="03">
+          <h3 className="text-title font-medium">{visual.title}</h3>
+          <p className="mt-5 text-lead text-ink-soft">{visual.description}</p>
+          {project.palette && <PaletteSwatches colors={project.palette} projectName={project.name} />}
+          <PointGrid points={visual.points} />
+        </CaseSection>
+      </div>
+
+      <WideSection n="04" label="Landing page" id="landing-page" title={landing.title} description={landing.description}>
+        <ScreenshotSlider shots={project.shots} label={`${project.name} landing page screens`} tint={project.tint} zoomable />
+      </WideSection>
+
+      <WideSection n="05" label="Dashboard" id="dashboard" title={dashboard.title} description={dashboard.description}>
+        <PointGrid points={dashboard.points} columns={4} />
+        <div className="mt-10 sm:mt-14">
+          <FrameGallery
+            dir={dashboard.framesDir}
+            projectName={project.name}
+            kind="Dashboard screen"
+            layout="slider"
+            tint={project.tint}
+            frames={dashboard.frames}
+            placeholders={dashboard.placeholders}
+          />
+        </div>
+      </WideSection>
+
+      <WideSection n="06" label="Interaction design" id="interaction-design" title={interactions.title} description={interactions.description}>
+        <PointGrid points={interactions.points} columns={4} />
+        <div className="mt-10 sm:mt-14">
+          <FrameGallery
+            dir={interactions.framesDir}
+            projectName={project.name}
+            kind="Interaction"
+            layout="pairs"
+            tint={project.tint}
+            pairs={interactions.pairs}
+            placeholders={interactions.placeholders}
+          />
+        </div>
+      </WideSection>
+
+      <div className="container-x">
+        <CaseSection label="Design outcome" n="07">
+          <h3 className="text-title font-medium">{outcome.title}</h3>
+          <p className="mt-5 text-lead text-ink-soft">{outcome.text}</p>
+        </CaseSection>
+      </div>
+    </div>
+  );
+}
+
+/** Full-width section: label + headline row, then content across the container. */
+function WideSection({
+  n,
+  label,
+  id,
+  title,
+  description,
+  children,
+}: {
+  n: string;
+  label: string;
+  id: string;
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  // Last word set in the serif italic accent, matching the portfolio's headings.
+  const cut = title.lastIndexOf(" ");
+  return (
+    <section aria-labelledby={id} className="container-x">
+      <div className="grid gap-6 border-t border-line pt-6 lg:grid-cols-12">
+        <p className="eyebrow flex gap-3 lg:col-span-3">
+          <span className="tabular-nums text-ink">{n}</span>
+          {label}
+        </p>
+        <div data-reveal className="lg:col-span-9">
+          <h2 id={id} className="text-headline font-medium">
+            {title.slice(0, cut)} <span className="font-serif font-normal italic">{title.slice(cut + 1)}</span>
+          </h2>
+          <p className="mt-6 max-w-2xl text-lead text-ink-soft">{description}</p>
+        </div>
+      </div>
+      <div className="mt-10 sm:mt-14">{children}</div>
+    </section>
+  );
+}
+
+/** The project's own brand colours — same presentation on every case study. */
+function PaletteSwatches({ colors, projectName }: { colors: { name: string; hex: string }[]; projectName: string }) {
+  return (
+    <ul className="mt-10 grid grid-cols-3 gap-3 sm:grid-cols-5" aria-label={`${projectName} colour palette`}>
+      {colors.map((c, i) => (
+        <li key={c.hex} data-reveal style={revealDelay(i * 60)}>
+          <span aria-hidden className="block aspect-[4/3] rounded-xl ring-1 ring-white/10" style={{ backgroundColor: c.hex }} />
+          <p className="mt-3 text-[0.9375rem] font-medium">{c.name}</p>
+          <p className="eyebrow mt-1 tabular-nums">{c.hex}</p>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function PointGrid({ points, columns = 2 }: { points: { title: string; text: string }[]; columns?: 2 | 4 }) {
+  return (
+    <ul
+      className={`mt-10 grid gap-px overflow-hidden rounded-2xl border border-line bg-line ${
+        columns === 4 ? "sm:grid-cols-2 lg:grid-cols-4" : "sm:grid-cols-2"
+      }`}
+    >
+      {points.map((p, i) => (
+        <li key={p.title} data-reveal style={revealDelay((i % columns) * 70)} className="bg-paper p-6 sm:p-7">
+          <span className="font-serif text-lg text-accent italic">{String(i + 1).padStart(2, "0")}</span>
+          <h3 className="mt-3 text-lg font-medium tracking-tight">{p.title}</h3>
+          <p className="mt-2 text-ink-soft">{p.text}</p>
+        </li>
+      ))}
+    </ul>
   );
 }
 

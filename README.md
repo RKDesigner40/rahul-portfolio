@@ -34,6 +34,6 @@ Replace the `null` with real content and the placeholder disappears. Don't add m
 
 Drop WebP files into `public/work/<slug>/` and list them in that project's `shots` array. A filename containing `mobile` is shown in a phone frame. Keep desktop captures at a 16:10 ratio.
 
-## Before deploying
+## SEO
 
-Set `SITE_URL` (e.g. `https://rahulk.design`) so Open Graph image URLs resolve correctly.
+The production domain (`https://rahulkulathoor.in`) and site-wide SEO copy live in `src/content/seo.ts`; each case study has its own `seo` title/description in `src/content/projects.ts`. Generated from these: canonical URLs, Open Graph/Twitter cards, `/sitemap.xml`, `/robots.txt`, `/manifest.webmanifest`, and Person/WebSite (+ per-case-study BreadcrumbList/CreativeWork) JSON-LD. Social preview images are in `public/og/` — regenerate them if a cover screenshot changes. When content changes, bump `LAST_UPDATED` in `src/app/sitemap.ts`.

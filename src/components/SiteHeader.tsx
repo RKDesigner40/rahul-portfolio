@@ -55,7 +55,7 @@ export function SiteHeader() {
             alt=""
             loading="eager"
             sizes="72px"
-            className="logo-mark h-8 w-auto sm:h-9"
+            className="logo-mark h-6 w-auto sm:h-7"
           />
           {profile.shortName}
         </Link>

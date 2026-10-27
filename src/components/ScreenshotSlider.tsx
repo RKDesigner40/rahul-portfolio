@@ -9,11 +9,19 @@ type Props = {
   shots: Shot[];
   label: string;
   tint: string;
+  /** Adds an "Open full size" link for the current screen (new tab). Off by default. */
+  zoomable?: boolean;
+  /**
+   * "contain" (default) fits each screen whole. "top" fills the stage width and
+   * anchors to the top — for tall full-page design exports, which would
+   * otherwise shrink to a sliver; pair it with `zoomable` to reach the rest.
+   */
+  fit?: "contain" | "top";
 };
 
 const SWIPE_THRESHOLD = 48;
 
-export function ScreenshotSlider({ shots, label, tint }: Props) {
+export function ScreenshotSlider({ shots, label, tint, zoomable = false, fit = "contain" }: Props) {
   const [index, setIndex] = useState(0);
   const [drag, setDrag] = useState(0);
   const [dragging, setDragging] = useState(false);
@@ -138,6 +146,20 @@ export function ScreenshotSlider({ shots, label, tint }: Props) {
                         className="h-full w-auto rounded-[0.7rem] sm:rounded-[1.15rem]"
                       />
                     </div>
+                  ) : fit === "top" ? (
+                    <div className="relative h-full w-full overflow-hidden rounded-md shadow-[0_30px_60px_-24px_rgb(0_0_0/0.6)] ring-1 ring-white/10 sm:rounded-xl">
+                      <Image
+                        src={shot.src}
+                        alt={shot.alt}
+                        fill
+                        sizes="(min-width: 1408px) 1250px, 90vw"
+                        draggable={false}
+                        loading={Math.abs(i - index) <= 1 ? "eager" : "lazy"}
+                        className="object-cover object-top"
+                      />
+                      {/* Hints that the frame continues below the stage. */}
+                      <div aria-hidden className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 to-transparent" />
+                    </div>
                   ) : (
                     <Image
                       src={shot.src}
@@ -168,6 +190,17 @@ export function ScreenshotSlider({ shots, label, tint }: Props) {
             {String(index + 1).padStart(2, "0")} / {String(count).padStart(2, "0")}
           </span>
           {current.caption}
+          {zoomable && (
+            <a
+              href={current.src}
+              target="_blank"
+              rel="noreferrer"
+              className="link-line ml-3 whitespace-nowrap text-ink"
+              aria-label={`Open ${current.caption} at full size (new tab)`}
+            >
+              Open full size ↗
+            </a>
+          )}
         </p>
         <div className="flex shrink-0 gap-2 sm:hidden">
           <SliderButton direction="left" onClick={() => go(index - 1)} label="Previous screen" small />

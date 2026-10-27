@@ -20,13 +20,13 @@ export const profile = {
   // Destination of the "Email Me" link in the contact section (never shown as text).
   contactEmail: "rahulk4060@gmail.com",
   // WhatsApp number for the floating chat button: country code + number, digits only
-  // (no "+", spaces or dashes), e.g. "919876543210". Used only in the wa.me link, never shown as text.
-  // ⚠ PLACEHOLDER — replace with your real number.
-  whatsappNumber: "91XXXXXXXXXX",
+  // (no "+", spaces or dashes). Used only in the wa.me link, never shown as text.
+  whatsappNumber: "919746584060",
   links: {
     linkedin: "https://www.linkedin.com/in/rahul-kulathoor",
     behance: "https://www.behance.net/rahulkulathoor",
-    resume: "https://drive.google.com/file/d/1dy667Ayj1uDLEd79ea1ETWb61N9x2IiZ/view?usp=sharing",
+    // Served from /public/resume; links use the `download` attribute so it saves directly.
+    resume: "/resume/Rahul_K_A_UI_UX.pdf",
   },
 } as const;
 
@@ -47,7 +47,7 @@ export const experience: ExperienceItem[] = [
     summary: "Design partner for digital product teams.",
   },
   {
-    period: "Feb 2020 — Present",
+    period: "Feb 2020 — Oct 2025",
     role: "UI/UX Designer",
     company: "Centelon Solutions",
     place: "Kochi, Kerala",
@@ -95,9 +95,21 @@ export const skills = [
   },
   {
     group: "Build",
-    items: ["HTML & CSS implementation", "Developer handoff", "Graphic design support"],
+    items: ["HTML & CSS implementation", "Next.js", "Tailwind CSS", "Developer handoff", "Graphic design support"],
   },
 ];
+
+// As supplied by Rahul.
+export const aiTools = {
+  label: "AI tools & workflow",
+  title: "AI-Assisted Design & Development",
+  items: [
+    { name: "ChatGPT", use: "Research, UX ideation, content refinement" },
+    { name: "Claude", use: "UI development, code assistance, problem-solving" },
+    { name: "Google Antigravity", use: "AI-assisted website development" },
+    { name: "OpenAI Codex", use: "Code generation, debugging, development tasks" },
+  ],
+};
 
 // Process phases as listed on the DIP case study of the previous portfolio.
 export const process = [

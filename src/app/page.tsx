@@ -1,12 +1,13 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { Hero } from "@/components/Hero";
-import { Arrow } from "@/components/icons";
+import { Arrow, Download } from "@/components/icons";
 import { ProjectPreview } from "@/components/ProjectPreview";
 import { SectionHeading } from "@/components/SectionHeading";
 import { ToolMarquee } from "@/components/ToolMarquee";
 import { projects, type Project } from "@/content/projects";
-import { experience, process, profile, skills } from "@/content/site";
+import { seo } from "@/content/seo";
+import { aiTools, experience, process, profile, skills } from "@/content/site";
 
 const delay = (ms: number) => ({ "--reveal-delay": ms }) as CSSProperties;
 
@@ -71,12 +72,11 @@ export default function Home() {
               <p data-reveal style={delay(160)} className="pt-2">
                 <a
                   href={profile.links.resume}
-                  target="_blank"
-                  rel="noreferrer"
+                  download
                   className="group inline-flex items-center gap-2 text-base font-medium text-ink"
                 >
                   <span className="link-line">Download résumé</span>
-                  <Arrow className="transition-transform duration-500 ease-out-expo group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  <Download className="transition-transform duration-500 ease-out-expo group-hover:translate-y-0.5" />
                 </a>
               </p>
             </div>
@@ -84,7 +84,7 @@ export default function Home() {
             <dl className="grid grid-cols-2 gap-x-6 gap-y-8 self-start lg:col-span-3 lg:col-start-10 lg:grid-cols-1">
               {[
                 ["Experience", `${profile.yearsExperience} years`],
-                ["Based in", "India"],
+                ["Based in", seo.location.label],
                 ["Working", "Globally, remote"],
                 ["Status", "Open to freelance"],
               ].map(([k, v], i) => (
@@ -137,7 +137,7 @@ export default function Home() {
         <div className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:mt-20 md:grid-cols-3">
           {skills.map((s, i) => (
             <div key={s.group} data-reveal style={delay(i * 90)} className="bg-paper p-7 sm:p-9">
-              <p className="eyebrow">{s.group}</p>
+              <h3 className="eyebrow">{s.group}</h3>
               <ul className="mt-6 space-y-3">
                 {s.items.map((item) => (
                   <li key={item} className="flex items-center gap-3 text-lg tracking-tight">
@@ -148,6 +148,20 @@ export default function Home() {
               </ul>
             </div>
           ))}
+        </div>
+
+        {/* AI tools: full width, since each tool carries a description. */}
+        <div data-reveal className="mt-6 overflow-hidden rounded-2xl border border-line bg-paper p-7 sm:p-9">
+          <p className="eyebrow">{aiTools.label}</p>
+          <h3 className="mt-4 text-title font-medium">{aiTools.title}</h3>
+          <ul className="mt-8 grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-2">
+            {aiTools.items.map((t, i) => (
+              <li key={t.name} data-reveal style={delay((i % 2) * 80)} className="bg-paper p-5 sm:p-6">
+                <p className="text-lg font-medium tracking-tight">{t.name}</p>
+                <p className="mt-1.5 text-ink-soft">{t.use}</p>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
@@ -199,25 +213,14 @@ export default function Home() {
                 <Arrow className="size-4 sm:size-5" />
               </span>
             </a>
-            <ul className="flex flex-wrap gap-3">
-              {[
-                ["LinkedIn", profile.links.linkedin],
-                ["Behance", profile.links.behance],
-                ["Résumé", profile.links.resume],
-              ].map(([label, href]) => (
-                <li key={label}>
-                  <a
-                    href={href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex h-11 items-center gap-2 rounded-full border border-line-strong px-5 text-sm transition-colors hover:border-ink hover:bg-ink hover:text-paper"
-                  >
-                    {label}
-                    <Arrow />
-                  </a>
-                </li>
-              ))}
-            </ul>
+            {/* Social / résumé links live in the footer; this side just states availability. */}
+            <p className="inline-flex h-11 items-center gap-3 text-[0.9375rem] text-ink-soft">
+              <span aria-hidden className="relative grid size-2 place-items-center">
+                <span className="absolute size-4 rounded-full bg-accent/25 blur-[3px]" />
+                <span className="relative size-2 rounded-full bg-accent" />
+              </span>
+              Available for freelance projects
+            </p>
           </div>
         </div>
       </section>

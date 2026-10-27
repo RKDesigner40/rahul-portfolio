@@ -40,6 +40,14 @@ type BaseProject = {
   stackLabel?: string;
   /** null = not yet provided by Rahul. */
   role: string | null;
+  /** Unique search title (~60 chars, before " | Rahul Kulathoor") and description (~155 chars). */
+  seo: { title: string; description: string };
+  /**
+   * The project's own brand colours, read from the live site's CSS (named
+   * tokens where the site defines them, otherwise computed colours of its
+   * backgrounds, buttons and links). Shown in the "Visual direction" section.
+   */
+  palette?: { name: string; hex: string }[];
   shots: Shot[];
 };
 
@@ -85,7 +93,51 @@ export type WebsiteCaseStudy = BaseProject & {
   techStack?: { name: string; use: string }[];
 };
 
-export type Project = ProductCaseStudy | WebsiteCaseStudy;
+type DesignPoint = { title: string; text: string };
+export type DesignFrame = { file: string; caption: string };
+
+/**
+ * Design-only case study spanning a landing page and a product dashboard
+ * (Figma), with interaction design. Development was done by others — the
+ * page must never imply implementation.
+ */
+export type DesignCaseStudy = BaseProject & {
+  kind: "design";
+  projectType: string;
+  description: string;
+  roleDetails: DesignPoint[];
+  visual: {
+    title: string;
+    description: string;
+    points: DesignPoint[];
+  };
+  landing: { title: string; description: string };
+  /**
+   * Galleries read real exports from /public/<framesDir> at build time, in
+   * filename order; until files exist they show labelled placeholders.
+   */
+  dashboard: {
+    title: string;
+    description: string;
+    points: DesignPoint[];
+    framesDir: string;
+    /** Explicit order + captions for files in framesDir; omit to list the folder in filename order. */
+    frames?: DesignFrame[];
+    placeholders: number;
+  };
+  interactions: {
+    title: string;
+    description: string;
+    points: DesignPoint[];
+    framesDir: string;
+    /** Before → after state pairs (files in framesDir). Shown instead of a plain frame list. */
+    pairs?: { title: string; text: string; from: DesignFrame; to: DesignFrame }[];
+    placeholders: number;
+  };
+  outcome: { title: string; text: string };
+};
+
+export type Project = ProductCaseStudy | WebsiteCaseStudy | DesignCaseStudy;
 
 const shot = (slug: string, file: string, caption: string, alt: string): Shot => {
   const mobile = file.includes("mobile");
@@ -107,6 +159,10 @@ export const projects: Project[] = [
     slug: "lottoposs",
     name: "LottoPoss",
     url: "https://lottoposs.com/",
+    seo: {
+      title: "LottoPoss — Marketing Website Design & Development",
+      description: "Case study: designing and developing the marketing website for LottoPoss, a desktop billing solution for Kerala lottery retailers — UI/UX, visual design and Next.js.",
+    },
     // The case study is the marketing website, not the desktop application it promotes.
     kind: "website",
     category: "Marketing website · Desktop software",
@@ -157,6 +213,14 @@ export const projects: Project[] = [
         "Clear navigation and conversion-focused page structure.",
       ],
     },
+    // lottoposs.com computed colours: primary violet backgrounds, CTA violet, dark sections, tinted surfaces, offer badges.
+    palette: [
+      { name: "Violet", hex: "#6D28D9" },
+      { name: "Bright violet", hex: "#7C3AED" },
+      { name: "Midnight", hex: "#0A0818" },
+      { name: "Lavender mist", hex: "#F6F5FB" },
+      { name: "Highlight yellow", hex: "#FACC15" },
+    ],
     shots: [
       shot("lottoposs", "01.webp", "Hero — “Your entire lottery business, one screen.”", "LottoPoss website hero with a violet Kerala skyline illustration"),
       shot("lottoposs", "02.webp", "Built for Kerala section", "Website section introducing lottery shops, agents and counter staff"),
@@ -171,6 +235,10 @@ export const projects: Project[] = [
     slug: "purple-dotts",
     name: "Purple Dotts",
     url: "https://purpledotts.com/",
+    seo: {
+      title: "Purple Dotts — Corporate Website UI/UX & Motion Design",
+      description: "Case study: UI/UX, visual and motion design for the Purple Dotts corporate website — information architecture, Figma designs for every page and motion-led interactions.",
+    },
     // Design-only engagement: Rahul did UI/UX, visual and motion design (Figma for all
     // pages). Frontend development and the WordPress backend were handled separately.
     kind: "website",
@@ -221,6 +289,14 @@ export const projects: Project[] = [
         "Responsive design considerations for different screen sizes.",
       ],
     },
+    // purpledotts.com CSS: --purple-primary, --purple-deep, --bg-dark; plum stats banner; light section ground.
+    palette: [
+      { name: "Electric purple", hex: "#A900FF" },
+      { name: "Deep purple", hex: "#28118F" },
+      { name: "Plum", hex: "#3B0B5E" },
+      { name: "Black", hex: "#000000" },
+      { name: "Mist", hex: "#F5F5F5" },
+    ],
     shots: [
       shot("purple-dotts", "01.webp", "Hero — “Connecting the dots behind every growing business”", "Purple Dotts dark hero with scattered glowing purple dots"),
       shot("purple-dotts", "02.webp", "Narrative — growth creates complexity", "A single purple dot in concentric circles beside the heading Growth Creates Complexity"),
@@ -236,6 +312,10 @@ export const projects: Project[] = [
     slug: "rc-marketspace",
     name: "RC Marketspace",
     url: "https://rcmarketspace.com/",
+    seo: {
+      title: "RC Marketspace — Marketplace Website UI/UX Design",
+      description: "Case study: UI/UX and visual design for RC Marketspace, a global marketplace for buying and selling RC models — product discovery, listing layouts and consistent browsing.",
+    },
     // Design-only engagement: Rahul did UI/UX and visual design. Website development,
     // marketplace functionality and the backend were handled separately.
     // category/summary are left as-is: the homepage card reads them.
@@ -287,6 +367,14 @@ export const projects: Project[] = [
         "A cohesive experience suited to an RC enthusiast community.",
       ],
     },
+    // rcmarketspace.com computed colours: navy sections, CTA/link blue, hero sky, page ground, text.
+    palette: [
+      { name: "Navy", hex: "#011C42" },
+      { name: "Sky blue", hex: "#1795E2" },
+      { name: "Ice blue", hex: "#CFE3F5" },
+      { name: "Cloud", hex: "#F9FAFB" },
+      { name: "Ink", hex: "#141414" },
+    ],
     shots: [
       shot("rc-marketspace", "01.webp", "Hero — search-first marketplace", "RC Marketspace hero with a jet over mountains and a three-field search bar"),
       shot("rc-marketspace", "02.webp", "Browse by category", "Row of category tiles for planes, jets, turbines and transmitters"),
@@ -302,45 +390,125 @@ export const projects: Project[] = [
     slug: "dip-trading",
     name: "DIP Trading",
     url: "https://dip.trading/",
-    category: "Fintech · Dashboard & UX strategy",
+    seo: {
+      title: "DIP Trading — Fintech Dashboard & Landing Page Design",
+      description: "Case study: landing page and dashboard UI/UX design for DIP Trading, a digital investment platform — black-and-gold visual design, financial data hierarchy and interactions.",
+    },
+    // Design-only: Rahul designed the landing page and dashboard (UI/UX, visual,
+    // interaction) in Figma. Development was done separately — never claim it.
+    // The summary is left as-is: the homepage card reads it.
+    kind: "design",
+    category: "Fintech · Investment Platform",
     summary: "A digital revenue participation platform, designed to present investment data as a calm, decision-friendly experience.",
-    tagline: "Making complex financial information clear.",
+    tagline: "Landing page & dashboard design",
+    projectType: "Landing Page & Dashboard Design",
     platform: "Web platform & dashboard",
     tint: "#221C12",
     tintInk: "light",
-    stack: [{ name: "Next.js", evidence: "x-powered-by: Next.js and x-nextjs-cache response headers" }],
-    role: ROLE,
-    facts: [
-      { label: "Timeline", value: "4 weeks", source: "Previous portfolio case study" },
-      { label: "Deliverables", value: "Research, flows, UI system, prototype", source: "Previous portfolio case study" },
-      { label: "Process", value: "Discovery → Research → Wireframes → UI Design → Prototype → Handoff", source: "Previous portfolio case study" },
+    stack: [{ name: "Next.js", evidence: "x-powered-by: Next.js and x-nextjs-cache response headers on the live site" }],
+    stackLabel: "Live site built with",
+    stackNote: "Development handled separately",
+    role: "UI/UX Design · Visual Design · Interaction Design",
+    description:
+      "DIP Trading is a digital investment platform designed to bring clarity and structure to a complex financial experience. I designed the landing page and dashboard experience with a premium black-and-gold visual language, focusing on clear information hierarchy, intuitive navigation, and meaningful interactions.",
+    roleDetails: [
+      { title: "UI/UX Design", text: "Shaped the experience across the complete landing page and dashboard, from structure to final screens." },
+      { title: "Visual design & direction", text: "Set the black-and-gold visual language, typography and interface details used throughout the project." },
+      { title: "Landing page design", text: "Designed the complete landing page in Figma." },
+      { title: "Dashboard interface design", text: "Designed the dashboard interface in Figma." },
+      { title: "Interaction design", text: "Designed the interactions and UI states for the different dashboard areas." },
+      { title: "Flows & usability", text: "Worked through user flows, interface hierarchy and usability considerations across both experiences." },
     ],
-    overview: [
-      "DIP presents itself as a digital revenue ecosystem, where participants share in revenue from digital commerce, online services and advertising.",
-      "The design aim was to present investment data as a calm, decision-friendly experience that builds confidence over the long term.",
-    ],
-    overviewSource: "dip.trading and the previous portfolio case study",
-    problem: {
-      intro:
-        "Design an investment platform that makes complex financial information clear and easy to use — building trust, reducing cognitive load and helping people make informed decisions with confidence.",
-      source: "Previous portfolio case study",
+    visual: {
+      title: "A premium black-and-gold design language",
+      description:
+        "A dark interface lets financial information carry the page, while a single gold accent signals what matters. The same visual system runs through the landing page and the dashboard.",
+      points: [
+        { title: "Dark interface", text: "Near-black surfaces keep the interface calm and let data, charts and key actions stand out." },
+        { title: "Gold accents", text: "Gold is used sparingly, for emphasis, highlights and key figures, so it keeps its weight." },
+        { title: "Typography", text: "Refined, restrained type gives headings and figures a clear order without decoration." },
+        { title: "Contrast & spacing", text: "Generous spacing and strong contrast build a visual hierarchy that is easy to scan." },
+      ],
     },
-    decisions: [
-      {
-        title: "Live data above the fold",
-        observed: "The hero leads with a “Live Orders Activity” chart and time filters rather than marketing imagery.",
-      },
-      {
-        title: "A restrained dark palette with one accent",
-        observed: "Near-black surfaces with a single gold accent reserved for key figures, chart lines and emphasis.",
-      },
-      {
-        title: "The model explained in modules",
-        observed:
-          "Digital Commerce, Advertising Participation, Revenue Sharing and Referral Network each get a card, next to a panel showing each revenue stream's status.",
-      },
+    // dip.trading CSS: --bg-dark, --bg-card, --gold, --gold-light; #BCA15E is the gold used on text and CTAs.
+    palette: [
+      { name: "Black", hex: "#050505" },
+      { name: "Card", hex: "#101010" },
+      { name: "Gold", hex: "#BCA15E" },
+      { name: "Rich gold", hex: "#D4A44A" },
+      { name: "Light gold", hex: "#DFBF57" },
     ],
-    learnings: null,
+    landing: {
+      title: "Landing Page Design",
+      description:
+        "The complete landing page, designed in Figma, introduces the platform and its participation model in the same black-and-gold language as the product. Screens below are from the live site built from the design.",
+    },
+    dashboard: {
+      title: "Dashboard UI/UX Design",
+      description:
+        "The dashboard is the core of the experience: an overview of portfolio performance, with dedicated screens for earnings and activity, investment plans and withdrawals.",
+      // Grounded in the Figma exports in /public/work/dip-trading/dashboard.
+      points: [
+        {
+          title: "Information hierarchy",
+          text: "Key figures — portfolio value, available balance, total returns and active investments — lead as summary cards, with charts and recent activity beneath.",
+        },
+        {
+          title: "Navigation",
+          text: "A persistent sidebar groups Finance and Account areas, while primary actions — Withdraw and New Investment — sit at the top of the dashboard.",
+        },
+        {
+          title: "Financial data presentation",
+          text: "Transaction charts, an ROI gauge, a portfolio breakdown and start-to-maturity progress make the numbers quick to read.",
+        },
+        {
+          title: "Interface consistency",
+          text: "The same dark cards, gold accents and outlined icon tiles carry through the dashboard, finance, investment and withdrawal screens.",
+        },
+      ],
+      framesDir: "work/dip-trading/dashboard",
+      frames: [
+        { file: "Dashboard.webp", caption: "Dashboard overview — portfolio, returns and activity" },
+        { file: "finance.webp", caption: "Earnings & activity — income, returns and transaction history" },
+        { file: "investment3-plan.webp", caption: "Investment plans — choose and compare packages" },
+        { file: "investment-packages-3compare.webp", caption: "Compare plans — side-by-side comparison panel" },
+        { file: "withdra-funds.webp", caption: "Withdraw funds — payment method, amount and summary" },
+        { file: "otp-verification.webp", caption: "Identity verification — OTP before a withdrawal" },
+      ],
+      placeholders: 3,
+    },
+    interactions: {
+      title: "Interaction Design",
+      description:
+        "Key dashboard tasks were designed as clear sequences of states — from choosing and comparing investment plans to verifying a withdrawal.",
+      // Grounded in the plan-compare and withdraw/OTP frames.
+      points: [
+        { title: "Navigation", text: "Back links and numbered steps guide people through multi-step tasks like withdrawals." },
+        { title: "Clarity", text: "Selected states — the chosen payment method, active filters and added plans — are clearly marked." },
+        { title: "Feedback", text: "Quick-select amounts, a live withdrawal summary and a resend-OTP timer respond as people act." },
+        { title: "Smoother experience", text: "Comparison and verification open as overlays above a dimmed page, so people keep their place." },
+      ],
+      framesDir: "work/dip-trading/dashboard",
+      pairs: [
+        {
+          title: "Choose and compare plans",
+          text: "Plans added from the cards collect in a tray; Compare Plans opens a side-by-side panel over the page.",
+          from: { file: "investment3-plan.webp", caption: "Plans selected" },
+          to: { file: "investment-packages-3compare.webp", caption: "Comparison panel" },
+        },
+        {
+          title: "Secure withdrawal",
+          text: "A three-step withdrawal form leads into an identity check, with a one-time code before funds move.",
+          from: { file: "withdra-funds.webp", caption: "Withdrawal form" },
+          to: { file: "otp-verification.webp", caption: "OTP verification" },
+        },
+      ],
+      placeholders: 4,
+    },
+    outcome: {
+      title: "Design Outcome",
+      text: "A cohesive design across the DIP Trading landing page and dashboard: one black-and-gold visual system, a clear hierarchy for financial information, and interaction design that carries through the dashboard experience.",
+    },
     shots: [
       shot("dip-trading", "01.webp", "Hero — live orders activity", "DIP dark hero with a gold live orders chart"),
       shot("dip-trading", "02.webp", "Revenue participation model", "Cards describing four participation models next to revenue stream status bars"),
@@ -354,6 +522,10 @@ export const projects: Project[] = [
     slug: "vakmi",
     name: "Vakmi",
     url: "https://vakmi.app/",
+    seo: {
+      title: "Vakmi — Product Website Design & Development",
+      description: "Case study: designing and developing the Vakmi website for a voice-to-text product in 22+ Indian languages — UI/UX, visual and motion design, built with Next.js.",
+    },
     // Rahul designed and built the website (design + frontend + motion).
     // category/summary are left as-is: the homepage card reads them.
     kind: "website",
@@ -422,6 +594,14 @@ export const projects: Project[] = [
       { name: "Tailwind CSS", use: "Styling" },
       { name: "Framer Motion", use: "Animation" },
       { name: "Lenis", use: "Smooth scrolling" },
+    ],
+    // vakmi.app CSS: --color-brand, --color-brand-light, --color-cream, --color-sage-soft, --color-ink.
+    palette: [
+      { name: "Olive", hex: "#74801B" },
+      { name: "Light olive", hex: "#A8B23A" },
+      { name: "Cream", hex: "#F7F5E9" },
+      { name: "Sage", hex: "#EDEED8" },
+      { name: "Ink", hex: "#1D1E19" },
     ],
     shots: [
       shot("vakmi", "01.webp", "Hero — “Think in your language, we do the rest”", "Vakmi cream hero with an olive green headline"),

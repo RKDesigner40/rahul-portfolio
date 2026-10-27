@@ -1,6 +1,6 @@
 import Image from "next/image";
 import type { CSSProperties } from "react";
-import { Arrow } from "@/components/icons";
+import { Arrow, Download } from "@/components/icons";
 import { profile } from "@/content/site";
 import portrait from "@/assets/rk-designer.webp";
 
@@ -30,12 +30,13 @@ export function Hero() {
         </p>
 
         <h1 id="hero-title" className="mt-7 text-hero font-medium lg:mt-8">
+          {/* The {" "} spaces keep the heading's text readable ("…digital experiences people…") for search engines and screen readers. */}
           <span className="hero-line">
             <span style={d(150)}>Designing digital</span>
-          </span>
+          </span>{" "}
           <span className="hero-line">
             <span style={d(260)}>experiences</span>
-          </span>
+          </span>{" "}
           {/* The frame sits outside the clipping mask so its labels and cursor aren't cut off. */}
           <SelectionFrame>
             <span className="hero-line">
@@ -60,11 +61,12 @@ export function Hero() {
             <Arrow className="rotate-90 transition-transform duration-500 ease-out-expo group-hover:translate-y-0.5" />
           </a>
           <a
-            href="#contact"
+            href={profile.links.resume}
+            download
             className="group inline-flex h-12 items-center gap-2.5 rounded-full border border-line-strong px-6 text-[0.95rem] font-medium text-ink transition-[border-color,background-color,transform] duration-300 hover:border-ink hover:bg-ink/[0.03] active:scale-[0.97]"
           >
-            Let&rsquo;s Talk
-            <Arrow className="transition-transform duration-500 ease-out-expo group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            Download Resume
+            <Download className="transition-transform duration-500 ease-out-expo group-hover:translate-y-0.5" />
           </a>
         </div>
         </div>
@@ -85,7 +87,7 @@ export function Hero() {
         </div>
         <Image
           src={portrait}
-          alt={`Portrait of ${profile.name}`}
+          alt={`${profile.name}, freelance UI/UX designer based in Kerala, India`}
           loading="eager"
           fetchPriority="high"
           sizes="(min-width: 1024px) 40vw, (min-width: 768px) 42vw, 92vw"
@@ -118,7 +120,11 @@ function SelectionFrame({ children }: { children: React.ReactNode }) {
         <svg width="18" height="20" viewBox="0 0 18 20" fill="none">
           <path d="M1.5 1.5L16 9.2L9.4 10.9L6.6 17.6L1.5 1.5Z" fill="#F3F2EC" stroke="#131312" strokeWidth="1.4" strokeLinejoin="round" />
         </svg>
-        <span className="mt-4 rounded-full bg-ink px-2.5 py-1 text-xs font-medium tracking-normal text-paper">Rahul</span>
+        {/* Label drawn via CSS content so it isn't part of the H1's text. */}
+        <span
+          data-label="Rahul"
+          className="mt-4 rounded-full bg-ink px-2.5 py-1 text-xs font-medium tracking-normal text-paper after:content-[attr(data-label)]"
+        />
       </span>
     </span>
   );
